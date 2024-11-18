@@ -1,17 +1,28 @@
 <template>
-  <form @submit.prevent="addContact">
-    <input v-model="firstName" placeholder="First Name" />
-    <input v-model="lastName" placeholder="Last Name" />
-    <input v-model="email" placeholder="Email" />
-    <button type="submit">Add Contact</button>
-  </form>
+  <div class="container my-5">
+    <h1 class="text-center mb-4">Add New Contact</h1>
+    <form @submit.prevent="addContact">
+      <div class="mb-3">
+        <label for="firstName" class="form-label">First Name</label>
+        <input v-model="firstName" id="firstName" type="text" class="form-control" placeholder="First Name" required />
+      </div>
+      <div class="mb-3">
+        <label for="lastName" class="form-label">Last Name</label>
+        <input v-model="lastName" id="lastName" type="text" class="form-control" placeholder="Last Name" required />
+      </div>
+      <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input v-model="email" id="email" type="email" class="form-control" placeholder="Email" required />
+      </div>
+      <button type="submit" class="btn btn-success w-100">Add Contact</button>
+    </form>
+  </div>
 </template>
 
 <script>
 import { ref } from 'vue';
-import { db } from '../db';  // Make sure db.js is correctly set up
+import { db } from '../db';
 import { collection, addDoc } from 'firebase/firestore';
-import { useRouter } from 'vue-router';
 
 export default {
   name: 'AddContact',
@@ -19,47 +30,59 @@ export default {
     const firstName = ref('');
     const lastName = ref('');
     const email = ref('');
-    const router = useRouter();
 
+    // Function to add a new contact to Firestore
     const addContact = async () => {
-      console.log('Add contact method triggered'); // Add this line to check if the method is being called
       try {
-        await addDoc(collection(db, 'contacts'), { 
-          firstName: firstName.value, 
-          lastName: lastName.value, 
-          email: email.value 
+        // Create a new document in Firestore under 'contacts' collection
+        await addDoc(collection(db, 'contacts'), {
+          firstName: firstName.value,
+          lastName: lastName.value,
+          email: email.value,
         });
-        console.log('Contact added successfully');
-        router.push('/');  // Redirect to the homepage after adding the contact
+        // Reset form fields after successful addition
+        firstName.value = '';
+        lastName.value = '';
+        email.value = '';
+        alert('Contact added successfully!');
       } catch (error) {
-        console.error('Error adding contact:', error);
+        console.error('Error adding contact: ', error);
+        alert('Error adding contact');
       }
     };
 
     return { firstName, lastName, email, addContact };
   }
 };
+
+const addContact = async () => {
+  try {
+    console.log("Adding contact:", firstName.value, lastName.value, email.value); // Debugging
+    await addDoc(collection(db, 'contacts'), {
+      firstName: firstName.value,
+      lastName: lastName.value,
+      email: email.value,
+    });
+    firstName.value = '';
+    lastName.value = '';
+    email.value = '';
+    alert('Contact added!');
+  } catch (error) {
+    console.error('Error adding contact:', error);
+    alert('Error adding contact');
+  }
+};
+
 </script>
 
-
 <style scoped>
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-input {
-  padding: 8px;
-  margin: 5px 0;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
-button {
-  padding: 10px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
+/* Optional styling for the form */
+.container {
+  max-width: 600px;
+  margin: auto;
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 </style>
