@@ -1,13 +1,16 @@
 <script setup>
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-import HelloWorld from './components/HelloWorld.vue'
+import AddContact from './components/AddContact.vue';
+import ContactDetail from './components/ContactDetail.vue';
+import ContactList from './components/ContactList.vue';
+import EditContact from './components/EditContact.vue';
 </script>
 
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <HelloWorld msg="Hello Vue 3 + Vite" />
+  <div id="app">
+    <router-view></router-view>
+  </div>
 </template>
+
 
 <style>
 #app {
