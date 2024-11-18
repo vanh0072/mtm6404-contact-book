@@ -1,65 +1,96 @@
 <template>
-  <div class="container my-5">
-    <h1 class="text-center mb-4">Edit Contact</h1>
+  <div class="edit-contact">
+    <NavBar />
+    <h2>Edit Contact</h2>
     <form @submit.prevent="updateContact">
-      <div class="mb-3">
-        <label for="firstName" class="form-label">First Name</label>
-        <input v-model="firstName" id="firstName" type="text" class="form-control" placeholder="First Name" required />
-      </div>
-      <div class="mb-3">
-        <label for="lastName" class="form-label">Last Name</label>
-        <input v-model="lastName" id="lastName" type="text" class="form-control" placeholder="Last Name" required />
-      </div>
-      <div class="mb-3">
-        <label for="email" class="form-label">Email</label>
-        <input v-model="email" id="email" type="email" class="form-control" placeholder="Email" required />
-      </div>
-      <button type="submit" class="btn btn-warning w-100">Update Contact</button>
+      <input v-model="contact.firstName" type="text" placeholder="First Name" required />
+      <input v-model="contact.lastName" type="text" placeholder="Last Name" required />
+      <input v-model="contact.email" type="email" placeholder="Email" required />
+      <button type="submit">Update Contact</button>
     </form>
   </div>
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
-import { db } from '../db';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { useRoute } from 'vue-router';
+import { db, doc, updateDoc } from '../db';
+import NavBar from './Navbar.vue';
 
 export default {
-  name: 'EditContact',
-  setup() {
-    const firstName = ref('');
-    const lastName = ref('');
-    const email = ref('');
-    const route = useRoute();
-    const contactId = route.params.id;
-
-    onMounted(async () => {
-      const docRef = doc(db, 'contacts', contactId);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const contact = docSnap.data();
-        firstName.value = contact.firstName;
-        lastName.value = contact.lastName;
-        email.value = contact.email;
-      }
-    });
-
-    const updateContact = async () => {
-      const docRef = doc(db, 'contacts', contactId);
-      await updateDoc(docRef, {
-        firstName: firstName.value,
-        lastName: lastName.value,
-        email: email.value,
-      });
-      alert('Contact updated!');
+  props: ['id'],
+  data() {
+    return {
+      contact: {
+        firstName: '',
+        lastName: '',
+        email: '',
+      },
     };
-
-    return { firstName, lastName, email, updateContact };
-  }
+  },
+  async created() {
+    const docRef = doc(db, "contacts", this.id);
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      this.contact = docSnap.data();
+    } else {
+      alert("Contact not found");
+    }
+  },
+  methods: {
+    async updateContact() {
+      try {
+        const docRef = doc(db, "contacts", this.id);
+        await updateDoc(docRef, {
+          firstName: this.contact.firstName,
+          lastName: this.contact.lastName,
+          email: this.contact.email,
+        });
+        alert('Contact updated successfully!');
+        this.$router.push('/contact-list'); // Redirect to the contact list page
+      } catch (e) {
+        alert('Error updating contact: ' + e);
+      }
+    },
+  },
 };
 </script>
 
 <style scoped>
-/* You can add custom styles if necessary */
+.edit-contact {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f1f8e9;
+  border-radius: 10px;
+}
+
+.edit-contact h2 {
+  color: #3c763d;
+  margin-bottom: 20px;
+}
+
+.edit-contact input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 16px;
+}
+
+.edit-contact button {
+  width: 100%;
+  padding: 12px;
+  background-color: #3c763d;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.edit-contact button:hover {
+  background-color: #2e5a2f;
+}
 </style>

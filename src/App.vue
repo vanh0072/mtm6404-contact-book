@@ -1,12 +1,12 @@
 <template>
   <div id="app">
     <Navbar />
-    <router-view />  <!-- This will display the current page -->
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import Navbar from './components/Navbar.vue';  // Import Navbar only once
+import Navbar from './components/Navbar.vue';
 
 export default {
   name: 'App',
@@ -15,7 +15,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-/* Optional global styles if needed */
-</style>

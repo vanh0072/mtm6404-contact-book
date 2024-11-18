@@ -1,56 +1,185 @@
 <template>
-  <div class="container my-5">
-    <h1 class="text-center mb-4">Contact List</h1>
+  <div class="contact-list">
+    <Navbar />
+    <h2>Contact List</h2>
+    <!-- Search Input -->
     <input
-      v-model="search"
-      class="form-control mb-3"
+      v-model="searchQuery"
       type="text"
-      placeholder="Search contacts..."
+      placeholder="Search contacts by name"
+      class="search-input"
     />
-    <div class="row">
-      <div class="col-md-4 mb-3" v-for="contact in filteredContacts" :key="contact.id">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">{{ contact.firstName }} {{ contact.lastName }}</h5>
-            <p class="card-text">Email: {{ contact.email }}</p>
-            <router-link :to="'/contact/' + contact.id" class="btn btn-primary btn-sm">View Details</router-link>
-          </div>
+    <div v-if="filteredContacts.length === 0">No contacts available.</div>
+    <div v-for="contact in filteredContacts" :key="contact.id" class="card">
+      <div class="card-body">
+        <div class="contact-info">
+          <h3>{{ contact.firstName }} {{ contact.lastName }}</h3>
+          <p>{{ contact.email }}</p>
+        </div>
+        <div class="contact-actions">
+          <router-link :to="'/edit-contact/' + contact.id" class="edit-btn">Edit</router-link>
+          <button class="delete-btn" @click="deleteContact(contact.id)">Delete</button>
         </div>
       </div>
     </div>
-    <router-link to="/add" class="btn btn-success mt-3 d-block w-100">Add New Contact</router-link>
   </div>
 </template>
 
 <script>
-import { ref, onMounted, computed } from 'vue';
-import { db } from '../db';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import Navbar from '../components/Navbar.vue';
+import { db, collection, getDocs, deleteDoc, doc } from '../db';
 
 export default {
-  name: 'ContactList',
-  setup() {
-    const contacts = ref([]);
-    const search = ref('');
-
-    onMounted(async () => {
-      const q = query(collection(db, 'contacts'), orderBy('lastName'));
-      const querySnapshot = await getDocs(q);
-      contacts.value = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    });
-
-    const filteredContacts = computed(() => {
-      return contacts.value.filter(contact =>
-        contact.firstName.toLowerCase().includes(search.value.toLowerCase()) ||
-        contact.lastName.toLowerCase().includes(search.value.toLowerCase())
-      );
-    });
-
-    return { search, filteredContacts };
-  }
+  data() {
+    return {
+      contacts: [],
+      searchQuery: '', // The search query input
+    };
+  },
+  computed: {
+    filteredContacts() {
+      // First, filter the contacts based on the search query
+      let filtered = this.contacts.filter(contact => {
+        const fullName = `${contact.firstName} ${contact.lastName}`.toLowerCase();
+        return fullName.includes(this.searchQuery.toLowerCase());
+      });
+      
+      // Then, sort them by last name alphabetically
+      return filtered.sort((a, b) => {
+        const lastNameA = a.lastName.toLowerCase();
+        const lastNameB = b.lastName.toLowerCase();
+        return lastNameA.localeCompare(lastNameB);
+      });
+    }
+  },
+  created() {
+    this.fetchContacts();
+  },
+  methods: {
+    async fetchContacts() {
+      try {
+        const querySnapshot = await getDocs(collection(db, "contacts"));
+        this.contacts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      } catch (e) {
+        alert('Error fetching contacts: ' + e);
+      }
+    },
+    async deleteContact(id) {
+      try {
+        await deleteDoc(doc(db, "contacts", id));
+        this.fetchContacts(); // Refresh contacts after delete
+      } catch (e) {
+        alert('Error deleting contact: ' + e);
+      }
+    }
+  },
 };
 </script>
 
 <style scoped>
-/* You can add custom styles if necessary */
+.contact-list {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 10px;
+}
+
+h2 {
+  text-align: center;
+  color: #3c763d;
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 16px;
+}
+
+.card {
+  background-color: #ffffff;
+  margin-bottom: 20px;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: left;
+  gap: 10px;
+}
+
+.contact-info h3 {
+  color: #3c763d;
+  font-size: 1.5rem;
+  margin: 0 auto;
+  gap: 10px;
+}
+
+.contact-info p {
+  color: #6c757d;
+  font-size: 1rem;
+  gap: 10px;
+}
+
+.contact-actions {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 10px;
+}
+
+.edit-btn, .delete-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.edit-btn {
+  background-color: #ffc107;
+  color: white;
+  border: none;
+}
+
+.edit-btn:hover {
+  background-color: #e0a800;
+}
+
+.delete-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+}
+
+.delete-btn:hover {
+  background-color: #c82333;
+}
+
+/* Ensure responsiveness for smaller screens */
+@media (max-width: 768px) {
+  .contact-list {
+    padding: 10px;
+  }
+
+  .card {
+    padding: 15px;
+    flex-direction: row;
+  }
+
+  .contact-actions {
+    width: 100%;
+    justify-content: space-around;
+  }
+}
 </style>
