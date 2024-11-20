@@ -2,20 +2,13 @@
   <div class="contact-list">
     <Navbar />
     <h2>Contact List</h2>
-    <!-- Search Input -->
-    <input
-      v-model="searchQuery"
-      type="text"
-      placeholder="Search contacts by name"
-      class="search-input"
-    />
-    <div v-if="filteredContacts.length === 0">No contacts available.</div>
-    <div v-for="contact in filteredContacts" :key="contact.id" class="card">
+    <div v-if="contacts.length === 0">No contacts available.</div>
+    <div v-for="contact in contacts" :key="contact.id" class="card">
       <div class="card-body">
-        <div class="contact-info">
+        <router-link :to="'/contact/' + contact.id" class="contact-name">
           <h3>{{ contact.firstName }} {{ contact.lastName }}</h3>
-          <p>{{ contact.email }}</p>
-        </div>
+        </router-link>
+        <p>{{ contact.email }}</p>
         <div class="contact-actions">
           <router-link :to="'/edit-contact/' + contact.id" class="edit-btn">Edit</router-link>
           <button class="delete-btn" @click="deleteContact(contact.id)">Delete</button>
@@ -33,18 +26,16 @@ export default {
   data() {
     return {
       contacts: [],
-      searchQuery: '', // The search query input
+      searchQuery: '',
     };
   },
   computed: {
     filteredContacts() {
-      // First, filter the contacts based on the search query
       let filtered = this.contacts.filter(contact => {
         const fullName = `${contact.firstName} ${contact.lastName}`.toLowerCase();
         return fullName.includes(this.searchQuery.toLowerCase());
       });
       
-      // Then, sort them by last name alphabetically
       return filtered.sort((a, b) => {
         const lastNameA = a.lastName.toLowerCase();
         const lastNameB = b.lastName.toLowerCase();
@@ -57,17 +48,24 @@ export default {
   },
   methods: {
     async fetchContacts() {
-      try {
-        const querySnapshot = await getDocs(collection(db, "contacts"));
-        this.contacts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      } catch (e) {
-        alert('Error fetching contacts: ' + e);
-      }
-    },
+  try {
+    const querySnapshot = await getDocs(collection(db, "contacts"));
+    this.contacts = querySnapshot.docs
+      .map(doc => ({ id: doc.id, ...doc.data() }))
+      .sort((a, b) => {
+        const lastNameA = a.lastName.toLowerCase();
+        const lastNameB = b.lastName.toLowerCase();
+        return lastNameA < lastNameB ? -1 : lastNameA > lastNameB ? 1 : 0;
+      });
+    console.log(this.contacts);
+  } catch (e) {
+    alert('Error fetching contacts: ' + e);
+  }
+},
     async deleteContact(id) {
       try {
         await deleteDoc(doc(db, "contacts", id));
-        this.fetchContacts(); // Refresh contacts after delete
+        this.fetchContacts();
       } catch (e) {
         alert('Error deleting contact: ' + e);
       }
@@ -80,7 +78,16 @@ export default {
 .contact-list {
   max-width: 900px;
   margin: 0 auto;
-  padding: 10px;
+  padding: 20px;
+}
+
+.contact-name {
+  color: #3c763d;
+  text-decoration: none;
+}
+
+.contact-name:hover {
+  text-decoration: underline;
 }
 
 h2 {
@@ -127,7 +134,7 @@ h2 {
 
 .contact-info p {
   color: #6c757d;
-  font-size: 1rem;
+  font-size: 1.5rem;
   gap: 10px;
 }
 
@@ -166,7 +173,6 @@ h2 {
   background-color: #c82333;
 }
 
-/* Ensure responsiveness for smaller screens */
 @media (max-width: 768px) {
   .contact-list {
     padding: 10px;

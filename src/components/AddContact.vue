@@ -12,7 +12,7 @@
 
 <script>
 import Navbar from '../components/Navbar.vue';
-import { db } from '../db';  // Adjust the import path if needed
+import { db } from '../db';
 import { collection, addDoc } from 'firebase/firestore';
 
 export default {
@@ -35,12 +35,10 @@ export default {
           lastName: this.lastName,
           email: this.email,
         });
-        // Reset form data after submission
         this.firstName = '';
         this.lastName = '';
         this.email = '';
         
-        // Redirect to contact list after adding the contact
         this.$router.push('/contact-list');
       } catch (e) {
         console.error("Error adding contact: ", e);
@@ -52,11 +50,11 @@ export default {
 
 <style scoped>
 .add-contact {
-  background-color: #f1f8e9; /* Light sage background */
+  background-color: #f1f8e9;
   padding: 50px;
   border-radius: 10px;
   max-width: 500px;
-  margin: 20px auto; /* Added margin to center and provide space around */
+  margin: 20px auto;
 }
 
 .add-contact h2 {
@@ -91,9 +89,8 @@ export default {
   background-color: #2e5a2f;
 }
 
-/* Add spacing from the navbar */
 .add-contact {
-  margin-top: 50px; /* Adjust this value to create the desired space */
+  margin-top: 50px;
 }
 </style>
 

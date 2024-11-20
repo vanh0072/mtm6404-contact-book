@@ -1,23 +1,18 @@
 <template>
-  <div class="contact-detail container my-5">
+  <div class="contact-detail">
     <Navbar />
-    <div class="contact-card p-4 shadow rounded">
-      <h1>{{ contact.firstName }} {{ contact.lastName }}</h1>
-      <p><strong>Email:</strong> {{ contact.email }}</p>
-      <div class="btn-container mt-4">
-        <router-link :to="'/edit/' + contact.id" class="btn btn-warning">Edit Contact</router-link>
-        <button @click="deleteContact" class="btn btn-danger ml-2">Delete Contact</button>
-      </div>
-    </div>
+    <h1>{{ contact.firstName }} {{ contact.lastName }}</h1>
+    <p><strong>Email:</strong> {{ contact.email }}</p>
+    <router-link :to="'/edit-contact/' + contact.id" class="btn btn-warning">Edit Contact</router-link>
+    <button @click="deleteContact" class="btn btn-danger">Delete Contact</button>
   </div>
 </template>
 
 <script>
-import Navbar from '../components/Navbar.vue';
 import { ref, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { db } from '../db';
 import { doc, getDoc, deleteDoc } from 'firebase/firestore';
-import { useRoute, useRouter } from 'vue-router';
 
 export default {
   name: 'ContactDetail',
@@ -51,58 +46,45 @@ export default {
 .contact-detail {
   max-width: 800px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 30px;
+  display: grid;
 }
 
-.contact-card {
-  background-color: #f1f8e9; /* Light sage background */
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.contact-card h1 {
-  color: #3c763d; /* Sage green */
+h1 {
   font-size: 2rem;
-  margin-bottom: 20px;
+  color: #3c763d;
 }
 
-.contact-card p {
+p {
   font-size: 1.2rem;
-  color: #333;
+  color: #6c757d;
 }
 
-.contact-card .btn-container {
-  display: flex;
-  justify-content: space-between;
-}
-
-.contact-card .btn {
-  padding: 12px 20px;
-  font-size: 16px;
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
   border-radius: 8px;
+  font-size: 16px;
   cursor: pointer;
 }
 
-.contact-card .btn-warning {
+.btn-warning {
   background-color: #ffc107;
   color: white;
   border: none;
-  transition: background-color 0.3s;
 }
 
-.contact-card .btn-warning:hover {
+.btn-warning:hover {
   background-color: #e0a800;
 }
 
-.contact-card .btn-danger {
+.btn-danger {
   background-color: #dc3545;
   color: white;
   border: none;
-  transition: background-color 0.3s;
 }
 
-.contact-card .btn-danger:hover {
+.btn-danger:hover {
   background-color: #c82333;
 }
-
 </style>

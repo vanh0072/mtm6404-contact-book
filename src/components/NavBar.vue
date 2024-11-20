@@ -10,16 +10,16 @@
 
 <script>
 export default {
-  name: 'Navbar',  // Default export for the component
+  name: 'Navbar',
 };
 </script>
 
 <style scoped>
 .navbar {
-  background-color: #4CAF50; /* Sage green background */
+  background-color: #4CAF50;
   padding: 10px;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
@@ -36,6 +36,6 @@ export default {
 }
 
 .navbar-item:hover {
-  color: #f1f1f1; /* Light color on hover */
+  color: #f1f1f1;
 }
 </style>

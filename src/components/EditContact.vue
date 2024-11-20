@@ -46,7 +46,7 @@ export default {
           email: this.contact.email,
         });
         alert('Contact updated successfully!');
-        this.$router.push('/contact-list'); // Redirect to the contact list page
+        this.$router.push('/contact-list');
       } catch (e) {
         alert('Error updating contact: ' + e);
       }
@@ -59,6 +59,7 @@ export default {
 .edit-contact {
   max-width: 600px;
   margin: 0 auto;
+  margin-top: 50px;
   padding: 20px;
   background-color: #f1f8e9;
   border-radius: 10px;
